@@ -1,0 +1,11 @@
+eli5
+librosa
+matplotlib
+numpy
+pandas
+scikeras
+scikit-learn
+seaborn
+tensorflow
+tqdm
+xgboost
