@@ -48,8 +48,8 @@ def test_XGBoost(best_xgb, X_test_xgb, y_test_xgb):
   # Evaluate classification performance
   xbg_accuracy = accuracy_score(y_test_xgb, y_pred_xgb)
   xbg_recall = get_recall(tf.cast(y_test_xgb, tf.float32), y_pred_xgb)
-  xbg_precision = get_precision(tf.cast(y_test_xgb, tf.float32), y_pred_xgb)
-  xbg_f1 = get_f1(tf.cast(y_test_xgb, tf.float32), y_pred_xgb)
+  xbg_precision = get_precision(tf.cast(y_test_xgb, tf.float64), y_pred_xgb)
+  xbg_f1 = get_f1(tf.cast(y_test_xgb, tf.float64), y_pred_xgb)
 
   print(f'XGBoost Accuracy: {xbg_accuracy * 100:.2f}%')
   print(f'XGBoost Recall: {xbg_recall * 100:.2f}%')

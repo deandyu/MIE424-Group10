@@ -52,17 +52,15 @@ def test_CNN(cnn, X_test_cnn, y_test_cnn):
   y_pred_cnn = cnn.predict(X_test_cnn)
 
   # Evaluate performance
-  cnn_accuracy_1 = accuracy_score(y_test_cnn, y_pred_cnn)
+  cnn_accuracy_1 = accuracy_score(np.argmax(y_test_cnn, axis=1), np.argmax(y_pred_cnn, axis=1))
   cnn_recall_1 = get_recall(y_test_cnn, y_pred_cnn)
-  cnn_precision_1 = get_precision(y_test_cnn, y_pred_cnn)
-  cnn_f1_1 = get_f1(y_test_cnn, y_pred_cnn)
+  cnn_precision_1 = get_precision(tf.cast(y_test_cnn, tf.float64), y_pred_cnn)
+  cnn_f1_1 = get_f1(tf.cast(y_test_cnn, tf.float64), y_pred_cnn)
 
   print(f'CNN Accuracy: {cnn_accuracy_1 * 100:.2f}%')
   print(f'CNN Recall: {cnn_recall_1 * 100:.2f}%')
   print(f'CNN Precision: {cnn_precision_1 * 100:.2f}%')
   print(f'CNN F1 Score: {cnn_f1_1 * 100:.2f}%')
-  
-  np.argmax(y_pred_cnn, axis=1)
 
   confusion_matrix_cnn = confusion_matrix(np.argmax(y_test_cnn, axis=1), np.argmax(y_pred_cnn, axis=1))
   plt.figure(figsize = (16, 9))
