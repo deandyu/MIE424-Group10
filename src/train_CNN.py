@@ -1,6 +1,7 @@
 
 from data.process_data import process_cnn_data
-from models.CNN import create_cnn
+from models.CNN import create_cnn, create_cnn_with_bn_dropout
+from evaluate import get_precision, get_recall, get_f1
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,8 +10,9 @@ import seaborn as sns
 import os
 import joblib
 
+import tensorflow as tf
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score
 
 GENRES = ['blues', 'classical', 'country', 'disco', 'hiphop',
           'jazz', 'metal', 'pop', 'reggae', 'rock']
@@ -32,9 +34,35 @@ def train_CNN(X_train, y_train, X_val_cnn, y_val_cnn):
   
   return cnn, cnn_history
 
+def train_CNN_with_bn_dropout(X_train, y_train, X_val_cnn, y_val_cnn):
+  input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3])
+
+  cnn_with_bn_dropout = create_cnn_with_bn_dropout(input_shape=input_shape, num_classes=len(GENRES))
+  cnn_with_bn_dropout.summary()
+
+  cnn_history_2 = cnn.fit(x=X_train, 
+                        y=y_train, 
+                        validation_data=(X_val_cnn, y_val_cnn), 
+                        epochs=100,
+                        verbose=True)
+
+  return cnn_with_bn_dropout, cnn_history_2
+
 def test_CNN(cnn, X_test_cnn, y_test_cnn):
   y_pred_cnn = cnn.predict(X_test_cnn)
-  print(f'CNN Accuracy: {cnn.evaluate(X_test_cnn, y_test_cnn)[1] * 100:.2f}%')
+
+  # Evaluate performance
+  cnn_accuracy_1 = accuracy_score(y_test_cnn, y_pred_cnn)
+  cnn_recall_1 = get_recall(y_test_cnn, y_pred_cnn)
+  cnn_precision_1 = get_precision(y_test_cnn, y_pred_cnn)
+  cnn_f1_1 = get_f1(y_test_cnn, y_pred_cnn)
+
+  print(f'CNN Accuracy: {cnn_accuracy_1 * 100:.2f}%')
+  print(f'CNN Recall: {cnn_recall_1 * 100:.2f}%')
+  print(f'CNN Precision: {cnn_precision_1 * 100:.2f}%')
+  print(f'CNN F1 Score: {cnn_f1_1 * 100:.2f}%')
+  
+  np.argmax(y_pred_cnn, axis=1)
 
   confusion_matrix_cnn = confusion_matrix(np.argmax(y_test_cnn, axis=1), np.argmax(y_pred_cnn, axis=1))
   plt.figure(figsize = (16, 9))
@@ -64,3 +92,10 @@ if __name__ == "__main__":
 
   cnn, cnn_history = train_CNN(X_train_cnn, y_train_cnn, X_val_cnn, y_val_cnn)
 
+  test_CNN(cnn, X_test_cnn, y_test_cnn)
+
+  plot(cnn_history)
+
+  cnn_with_bn_dropout, cnn_history_2 = train_CNN_with_bn_dropout(X_train_cnn, y_train_cnn, X_val_cnn, y_val_cnn)
+
+  test_CNN(cnn_with_bn_dropout, X_test_cnn, y_test_cnn)

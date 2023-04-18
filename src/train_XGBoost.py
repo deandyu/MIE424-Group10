@@ -1,6 +1,7 @@
 
 from data.process_data import process_data
 from models.XGBoost import evaluate_model
+from evaluate import get_precision, get_recall, get_f1
 
 import numpy as np
 import pandas as pd
@@ -12,10 +13,9 @@ import os
 import joblib
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score
 
-import xgboost as xgb
-from xgboost import XGBClassifier, XGBRFClassifier
+from xgboost import XGBClassifier
 
 GENRES = ['blues', 'classical', 'country', 'disco', 'hiphop',
           'jazz', 'metal', 'pop', 'reggae', 'rock']
@@ -42,7 +42,17 @@ def train_XGBoost(X_train_xgb, y_train_xgb, X_val_xgb, y_val_xgb):
 
 def test_XGBoost(best_xgb, X_test_xgb, y_test_xgb):
   y_pred_xgb = best_xgb.predict(X_test_xgb)
-  print(f'XGBClassifier Accuracy: {best_xgb.score(X_test_xgb, y_test_xgb) * 100:.2f}%')
+
+  # Evaluate classification performance
+  xbg_accuracy = accuracy_score(y_test_xgb, y_pred_xgb)
+  xbg_recall = get_recall(y_test_xgb, y_pred_xgb)
+  xbg_precision = get_precision(y_test_xgb, y_pred_xgb)
+  xbg_f1 = get_f1(y_test_xgb, y_pred_xgb)
+
+  print(f'XGBoost Accuracy: {xbg_accuracy * 100:.2f}%')
+  print(f'XGBoost Recall: {xbg_recall * 100:.2f}%')
+  print(f'XGBoost Precision: {xbg_precision * 100:.2f}%')
+  print(f'XGBoost F1 Score: {xbg_f1 * 100:.2f}%')
 
   # Plot confusion matrix
   confusion_matrix_xgb = confusion_matrix(y_test_xgb, y_pred_xgb)
@@ -108,7 +118,7 @@ if __name__ == "__main__":
   X_val_xgb, X_test_xgb, y_val_xgb, y_test_xgb = train_test_split(X_test_xgb, y_test_xgb, test_size=0.5, random_state=1)
 
   best_xgb, best_xgb_history = train_XGBoost(X_train_xgb, y_train_xgb, X_val_xgb, y_val_xgb)
-  
+
   test_XGBoost(best_xgb, X_test_xgb, y_test_xgb)
 
   plot_feature_importance(best_xgb, GTZAN)

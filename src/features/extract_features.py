@@ -6,8 +6,17 @@ import librosa
 
 from tqdm import tqdm
 
-def load_gtzan_data(path):
+def load_gtzan_data(path: str) -> pd.DataFrame:
+    """
+    Load the GTZAN dataset from the given path and extract audio features for each music slice.
 
+    Parameters:
+        path (str): The path to the directory containing the GTZAN dataset.
+
+    Returns:
+        pd.DataFrame: A Pandas dataframe containing the extracted features and labels for each slice.
+
+    """
     # Different music genres in GTZAN
     genres = ['blues', 'classical', 'country', 'disco', 'hiphop',
               'jazz', 'metal', 'pop', 'reggae', 'rock']

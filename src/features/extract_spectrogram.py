@@ -5,51 +5,96 @@ from tqdm import tqdm
 import os
 import librosa
 import joblib
+from typing import List, Tuple
 
 from sklearn.preprocessing import normalize
 
-def create_spectrogram(audio, sr):
+def create_spectrogram(audio: np.ndarray, sr: int) -> np.ndarray:
+    """
+    Create a normalized spectrogram of an audio file.
 
+    Parameters:
+        audio (np.ndarray): The audio data as a 1D NumPy array.
+        sr (int): The sample rate of the audio file.
+
+    Returns:
+        np.ndarray: A normalized spectrogram of the audio file as a 2D NumPy array.
+
+    """
+    # Compute the mel spectrogram of the audio data
     melspectrogram = librosa.feature.melspectrogram(y=audio, sr=sr)
 
+    # Convert the mel spectrogram to decibels
     spectrogram = librosa.power_to_db(S=melspectrogram, ref=1.0)
 
+    # Normalize the spectrogram to have values between 0 and 1
     normalized_spectrogram = normalize(spectrogram)
 
+    # Return the normalized spectrogram as a 2D NumPy array
     return normalized_spectrogram
 
-def augment_samples(audio, sr, n_slices):
+def augment_samples(audio: np.ndarray, sr: int, n_slices: int) -> list:
+    """
+    Augment an audio signal by applying various transformations to its slices.
 
+    Parameters:
+        audio (np.ndarray): The audio data as a 1D NumPy array.
+        sr (int): The sample rate of the audio file.
+        n_slices (int): The number of slices to split the audio data into.
+
+    Returns:
+        list: A list of augmented audio samples, each represented as a 1D NumPy array.
+
+    """
+    # Split the audio data into slices
     audio_samples = np.array_split(audio, n_slices)
 
+    # Create a list to store the augmented samples
     augmented_samples = []
 
+    # Apply different transformations to each slice
     for audio_sample in audio_samples:
 
-      augmented_samples.append(audio_sample)
+        # Add the original slice to the list of augmented samples
+        augmented_samples.append(audio_sample)
 
-      for n_steps in [3, 5]:
-          augmented_samples.append(librosa.effects.pitch_shift(y=audio_sample, sr=sr, n_steps=n_steps))
+        # Apply pitch shifting to the slice with 3 and 5 steps
+        for n_steps in [3, 5]:
+            augmented_samples.append(librosa.effects.pitch_shift(y=audio_sample, sr=sr, n_steps=n_steps))
 
-      for rate in [0.5, 1.5]:
-          augmented_samples.append(librosa.effects.time_stretch(y=audio_sample, rate=rate))
+        # Apply time stretching to the slice with 0.5 and 1.5 rates
+        for rate in [0.5, 1.5]:
+            augmented_samples.append(librosa.effects.time_stretch(y=audio_sample, rate=rate))
 
-      white_noise = np.random.randn(len(audio_sample))
-      augmented_samples.append(audio_sample + 0.005 * white_noise)
+        # Add white noise to the slice
+        white_noise = np.random.randn(len(audio_sample))
+        augmented_samples.append(audio_sample + 0.005 * white_noise)
 
+    # Return the list of augmented samples
     return augmented_samples
 
-def get_cnn_data(path):
+def get_cnn_data(path: str) -> Tuple[List[np.ndarray], List[int]]:
+    """
+    Load and preprocess the data for a CNN model.
 
+    Parameters:
+        path (str): The path to the GTZAN dataset.
+
+    Returns:
+        Tuple[List[np.ndarray], List[int]]: A tuple containing a list of spectrograms and a list of corresponding labels.
+
+    """
+    # Define the music genres in GTZAN
     genres = ['blues', 'classical', 'country', 'disco', 'hiphop',
               'jazz', 'metal', 'pop', 'reggae', 'rock']
 
+    # Determine the number of music genres
     n_classes = len(genres)
 
+    # Define the number of audio slices
     n_slices = 3
 
     spectrograms = []
-
     labels = []
 
     for genre in tqdm(genres):

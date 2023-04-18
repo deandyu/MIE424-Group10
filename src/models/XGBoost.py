@@ -3,7 +3,18 @@ import pandas as pd
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 
 def evaluate_model(model: object, X_train: pd.DataFrame, y_train: pd.Series) -> tuple:
+    """
+    Evaluate a given model on the provided training data using a grid search over a range of hyperparameters.
 
+    Args:
+        model (object): An instance of the model to be evaluated.
+        X_train (pd.DataFrame): A Pandas dataframe containing the feature data for the training set.
+        y_train (pd.Series): A Pandas series containing the target labels for the training set.
+
+    Returns:
+        tuple: A tuple containing the best model, best hyperparameters, and accuracy score.
+
+    """
     param_grid = get_grid_parameters(model)
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
@@ -17,6 +28,19 @@ def evaluate_model(model: object, X_train: pd.DataFrame, y_train: pd.Series) -> 
     return best_model, best_parameters, accuracy
 
 def get_grid_parameters(model: object) -> dict:
+    """
+    Get a grid of hyperparameters for a given model type.
+
+    Parameters:
+        model (object): An instance of the model for which to retrieve hyperparameters.
+
+    Returns:
+        dict: A dictionary containing the hyperparameters to be used in a grid search.
+
+    Raises:
+        ValueError: If the provided model type is not supported.
+
+    """
     model_name = type(model).__name__.lower()
 
     if model_name == 'xgbclassifier':
