@@ -12,6 +12,8 @@ import seaborn as sns
 import os
 import joblib
 
+import tensorflow as tf
+
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, accuracy_score
 
@@ -45,9 +47,9 @@ def test_XGBoost(best_xgb, X_test_xgb, y_test_xgb):
 
   # Evaluate classification performance
   xbg_accuracy = accuracy_score(y_test_xgb, y_pred_xgb)
-  xbg_recall = get_recall(y_test_xgb, y_pred_xgb)
-  xbg_precision = get_precision(y_test_xgb, y_pred_xgb)
-  xbg_f1 = get_f1(y_test_xgb, y_pred_xgb)
+  xbg_recall = get_recall(tf.cast(y_test_xgb, tf.float32), y_pred_xgb)
+  xbg_precision = get_precision(tf.cast(y_test_xgb, tf.float32), y_pred_xgb)
+  xbg_f1 = get_f1(tf.cast(y_test_xgb, tf.float32), y_pred_xgb)
 
   print(f'XGBoost Accuracy: {xbg_accuracy * 100:.2f}%')
   print(f'XGBoost Recall: {xbg_recall * 100:.2f}%')
